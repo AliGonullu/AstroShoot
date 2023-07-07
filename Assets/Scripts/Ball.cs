@@ -6,22 +6,26 @@ public class Ball : MonoBehaviour
     [SerializeField] private PhysicsMaterial2D material;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private SceneMNG scene_ref;
-    
-    private static int score = 0, throwForceLVL = 0, health = 3;
+
+    public static int score = 0, first_health = 2;
+
+    private static int throwForceLVL = 0, health = first_health, health_level = 0;
+    private readonly float friction = 0.32f, force = 17f, def_bounciness = 0.1f;
     private int score_multiplier = 1;
-    private Rigidbody2D rb;
     private SpriteRenderer _renderer;
-    private readonly float friction = 0.35f, force = 17f, def_bounciness = 0.1f;
-    private Player player = null;
     private bool ballTaken = false;
+    private Player player = null;
     private Vector3 first_size;
+    private Rigidbody2D rb;
+    
     
     public bool GetBallTaken(){return ballTaken;}
 
+    //public int GetHealth() { return health; }
     public void SetHealth(int _new_value) { health = _new_value; }
 
-    public int GetScore() { return score; }
-    public void SetScore(int _new_value) { score = _new_value; }
+    public int GetHealthLVL() { return health_level; }
+    public void SetHealthLVL(int _new_value) { health_level = _new_value; }
 
 
     public int GetThrowForceLVL() { return throwForceLVL; }
@@ -35,12 +39,14 @@ public class Ball : MonoBehaviour
 
     void Start()
     {
-        first_size = transform.localScale;
         _renderer = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        
+        health += health_level;
+        first_size = transform.localScale;
         scoreText.text = score.ToString();
         material.bounciness = def_bounciness;
-        _renderer.material.color = Color.green;
+        BallColorHandling();
     }
 
     void FixedUpdate()
@@ -77,12 +83,14 @@ public class Ball : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        Obstacle obs = collision.gameObject.GetComponent<Obstacle>();
         if (collision.gameObject.name.StartsWith("FireWall") && !ballTaken)
         {
-            health = Mathf.Clamp(health - 1, 0, 3);
+            health = Mathf.Clamp(health - 1, 0, health);
             if (health <= 0)
             {
-                Destroy(gameObject);
+                //Destroy(gameObject);
+                gameObject.SetActive(false);
                 scene_ref.OpenGameOverMenu();
             }
             transform.localScale = first_size;
@@ -95,10 +103,11 @@ public class Ball : MonoBehaviour
             score_multiplier = 1;
             transform.localScale = first_size;
         }
-        else if (collision.gameObject.name.StartsWith("Obstacle"))
+        else if (collision.gameObject.name.StartsWith("Obstacle") || collision.gameObject.name.StartsWith("Gold"))
         {
             if (!ballTaken)
             {
+                obs.SetHealth(obs.GetHealth() - 1);
                 ScoreChanged(score + score_multiplier);
                 score_multiplier += 1;
                 material.bounciness += 0.05f;
@@ -110,6 +119,7 @@ public class Ball : MonoBehaviour
         {
             if (!ballTaken)
             {
+                obs.SetHealth(obs.GetHealth() - 1);
                 PerkHandler.materials += 1;
                 material.bounciness += 0.05f;
                 rb.velocity *= 1.01f;
@@ -120,6 +130,7 @@ public class Ball : MonoBehaviour
         {
             if (!ballTaken)
             {
+                obs.SetHealth(obs.GetHealth() - 1);
                 health = Mathf.Clamp(health + 1, 0, 3);
                 material.bounciness += 0.05f;
                 rb.velocity *= 1.01f;
@@ -130,6 +141,7 @@ public class Ball : MonoBehaviour
         {
             if (!ballTaken)
             {
+                obs.SetHealth(obs.GetHealth() - 1);
                 ScoreChanged(score + 10);
                 material.bounciness += 0.05f;
                 rb.velocity *= 1.01f;
@@ -142,6 +154,11 @@ public class Ball : MonoBehaviour
             material.bounciness -= 0.03f;
         }
 
+        BallColorHandling();
+    }
+
+    private void BallColorHandling()
+    {
         if (health == 3)
             _renderer.material.color = Color.green;
         else if (health == 2)
@@ -151,7 +168,7 @@ public class Ball : MonoBehaviour
     }
 
     private void OnCollisionStay2D(Collision2D collision)
-    {        
+    {
         if (collision.gameObject.name.StartsWith("Player1"))
         {
             player = collision.gameObject.GetComponent<Player>();

@@ -5,21 +5,20 @@ public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject[] obstacles;
     public static List<int> enabled_indexes = new();
-    
-    float j_first = 0.0f;
+    private float j_first = 0.0f;
 
     void Start()
     {
         for (int i = 0; i <= 7; i++)
             enabled_indexes.Add(i);
-        InvokeRepeating(nameof(Spawn), 3, 3f - (obstacles[0].GetComponent<Obstacle>().GetObstacleSpeed() / 5f));   
+        InvokeRepeating(nameof(Spawn), 3, 2.6f - (obstacles[0].GetComponent<Obstacle>().GetObstacleSpeed() / 5f));   
     }
 
     void Spawn()
     {
         int choose_from_enabled_indexes = Random.Range(0, enabled_indexes.Count);
         int idx = enabled_indexes[choose_from_enabled_indexes];
-        float j = Random.Range(-4f, 4f);
+        float j = Random.Range(-6f, 6f);
         j_first = j;
 
         if (Mathf.Abs(j_first - j) < 2)
@@ -35,8 +34,8 @@ public class SpawnManager : MonoBehaviour
     private void PerkSpawner()
     {
         PerkHandler ph = new();
-        float j = Random.Range(-4f, 4f);
-        if ((Random.Range(0, 10) > 5) && (ph.GetFixTheBallEnabled() || ph.GetPlusTenScoreEnabled()))
+        float j = Random.Range(-6f, 6f);
+        if ((Random.Range(0, 10) > 4) && (ph.GetFixTheBallEnabled() || ph.GetPlusTenScoreEnabled()))
         {
             int perk_idx = 0;
             if (ph.GetFixTheBallEnabled() && ph.GetPlusTenScoreEnabled())

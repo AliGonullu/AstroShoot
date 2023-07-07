@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9651335191858137}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00551, y: 0.019, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -272,7 +272,7 @@ GameObject:
   - component: {fileID: 1464694910837503459}
   - component: {fileID: 1847966892737624860}
   m_Layer: 7
-  m_Name: Obstacle4
+  m_Name: GoldObstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -334,3 +334,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cbc2d9aa491cc745bb934173f034989, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 5

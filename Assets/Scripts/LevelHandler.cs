@@ -3,25 +3,27 @@ using UnityEngine;
 
 public class LevelHandler : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI[] LVLTexts, highscoreRequirementsTexts;
-    [SerializeField] private TextMeshProUGUI highscoreText;
-    public static float highscore = 0;
-    private int button_index = 0;
-    private readonly float[] score_limits = {20, 40, 80, 160, 320};
-    private Ball ball;
-    private Texts texts;
+    [SerializeField] private TextMeshProUGUI[] LVLTexts, masteryRequirementsTexts;
+    [SerializeField] private TextMeshProUGUI masteryText;
 
+    private readonly int[] score_limits = { 1, 2, 4, 8, 16, 32, 64 };
+    private readonly SceneMNG sMNG = new();
+    private readonly Texts texts = new();
+    private readonly Ball ball = new();
+    private int button_index = 0;
+    
     private void Start()
     {
-        ball = new();
-        texts = new();
-        HighscoreChanged(highscore);
+        ChangeMastery(sMNG.GetMastery());
 
         LVLTexts[0].text = Player.playerSpeedLVL.ToString();
-        highscoreRequirementsTexts[0].text = texts.HighscoreTextHandling(score_limits[Player.playerSpeedLVL].ToString());
+        masteryRequirementsTexts[0].text = texts.MasteryTextHandling(score_limits[Player.playerSpeedLVL].ToString());
 
         LVLTexts[1].text = ball.GetThrowForceLVL().ToString();
-        highscoreRequirementsTexts[1].text = texts.HighscoreTextHandling(score_limits[ball.GetThrowForceLVL()].ToString());
+        masteryRequirementsTexts[1].text = texts.MasteryTextHandling(score_limits[ball.GetThrowForceLVL()].ToString());
+
+        LVLTexts[2].text = ball.GetHealthLVL().ToString();
+        masteryRequirementsTexts[2].text = texts.MasteryTextHandling(score_limits[ball.GetHealthLVL()].ToString());
     }
 
     public void PlayerSpeedButtonDown()
@@ -34,30 +36,37 @@ public class LevelHandler : MonoBehaviour
         ball.SetThrowForceLVL(ButtonProcess(1, ball.GetThrowForceLVL()));
     }
 
+    public void ExtraHealthForBall()
+    {
+        ball.SetHealthLVL(ButtonProcess(2, ball.GetHealthLVL()));
+    }
+
     private int ButtonProcess(int _button_idx, int _lvl)
     {
         button_index = _button_idx;
-        if (highscore >= score_limits[_lvl])
+        if (sMNG.GetMastery() >= score_limits[_lvl])
         {
+            ChangeMastery(sMNG.GetMastery() - score_limits[_lvl]);
+            sMNG.ResetScoreSlider();
             _lvl += 1;
             LVLTexts[button_index].text = _lvl.ToString();
-            highscoreRequirementsTexts[button_index].text = texts.HighscoreTextHandling(score_limits[_lvl].ToString());
-            HighscoreChanged(0);
+            masteryRequirementsTexts[button_index].text = texts.MasteryTextHandling(score_limits[_lvl].ToString());
         }
         else
         {
-            highscoreRequirementsTexts[button_index].text = texts.insufficient_highscore;
+            masteryRequirementsTexts[button_index].text = texts.insufficient_highscore;
         }
         return _lvl;
     }
 
-    private void HighscoreChanged(float _new_value)
+    
+    private void ChangeMastery(int _new_value)
     {
-        if(highscoreText != null)
+        if(masteryText != null)
         {
-            highscore = _new_value;
-            highscoreText.text = "(Highscore : " + _new_value.ToString() + ")";
+            sMNG.SetMastery(_new_value);
+            masteryText.text = "(Mastery : " + _new_value.ToString() + ")";
         }
     }
-
+    
 }

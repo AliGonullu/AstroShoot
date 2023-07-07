@@ -5,18 +5,17 @@ using UnityEngine.UI;
 public class PerkHandler : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI[] materialsRequirementsTexts;
-    [SerializeField] private TextMeshProUGUI materialsText;
-    [SerializeField] private GameObject fixTheBall, plusTenScore;
     [SerializeField] private Button fixTheBallButton, plusTenScoreButton;
-    private Texts texts;
+    [SerializeField] private GameObject fixTheBall, plusTenScore;
+    [SerializeField] private TextMeshProUGUI materialsText;
 
     private static bool fixTheBallEnabled = false, plusTenScoreEnabled = false;
+    private readonly static float[] material_requirements = { 1, 1, 50 };
+    public static float materials = 2;
+    private Texts texts;
 
     public bool GetFixTheBallEnabled() { return fixTheBallEnabled; }
     public bool GetPlusTenScoreEnabled() { return plusTenScoreEnabled; }
-
-    public static float materials = 0;
-    private readonly static float[] material_requirements = { 1, 1, 50};
 
     private void Start()
     {
@@ -26,6 +25,12 @@ public class PerkHandler : MonoBehaviour
         materialsRequirementsTexts[0].text = texts.MaterialTextHandling(material_requirements[0].ToString());
         materialsRequirementsTexts[1].text = texts.MaterialTextHandling(material_requirements[1].ToString());
         materialsRequirementsTexts[2].text = texts.MaterialTextHandling(material_requirements[2].ToString());
+
+        if (fixTheBallEnabled)
+            materialsRequirementsTexts[0].text = texts.purchased;
+        if(plusTenScoreEnabled)
+            materialsRequirementsTexts[1].text = texts.purchased;
+        
     }
 
     public void ResetCosts()
@@ -106,16 +111,15 @@ public class PerkHandler : MonoBehaviour
     {
         if (fixTheBallButton != null)
         {
-            fixTheBallButton.enabled = !fixTheBallEnabled;
+            fixTheBallButton.interactable = !fixTheBallEnabled;
             if (fixTheBallEnabled)
                 materialsRequirementsTexts[0].text = texts.purchased;
         }
         if (plusTenScoreButton != null)
         {
-            plusTenScoreButton.enabled = !plusTenScoreEnabled;
+            plusTenScoreButton.interactable = !plusTenScoreEnabled;
             if (plusTenScoreEnabled)
                 materialsRequirementsTexts[1].text = texts.purchased;
         }
     }
-
 }
