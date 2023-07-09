@@ -5,18 +5,18 @@ public class Obstacle : MonoBehaviour
     [SerializeField] private int health;
 
     private static int destroyed_obs_count = 0;
-    private const float extra_speed = 0.2f;
-    private float obstacleSpeed = 3f;
+    private static float obstacleSpeed = 2.6f;
+    private readonly float extra_speed = 0.09f;
 
     public void SetHealth(int _health) { health = _health; }
     public int GetHealth() { return health; }
 
-    //public void SetObstacleSpeed(float _obstacleSpeed) { obstacleSpeed = _obstacleSpeed; }
     public float GetObstacleSpeed() {  return obstacleSpeed; }
+
 
     void FixedUpdate()
     {
-        if(destroyed_obs_count > 3)
+        if(destroyed_obs_count > 5)
         {
             destroyed_obs_count = 0;
             obstacleSpeed += extra_speed;
@@ -25,18 +25,23 @@ public class Obstacle : MonoBehaviour
         Vector2 _velocity = obstacleSpeed * Time.deltaTime * Vector2.down;
         transform.position += new Vector3(_velocity.x, _velocity.y, 0);
         
-        if (transform.position.y < -10)
+        if (transform.position.y < -15)
         {
             Destroy(gameObject);
-            destroyed_obs_count++;
+            destroyed_obs_count += 1;
         }
 
         if (health <= 0)
         {
-            Destroy(gameObject, 0.2f);
-            destroyed_obs_count++;
-            Ball.score++;
+            Destroy(gameObject, 0.1f);
+            destroyed_obs_count += 1;
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.layer == 7 || collision.gameObject.name.StartsWith("Obstacle") || collision.gameObject.name.EndsWith("Obstacle"))
+            Destroy(gameObject);
     }
 
 }

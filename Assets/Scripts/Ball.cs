@@ -1,23 +1,25 @@
-using TMPro;
+//using TMPro;
 using UnityEngine;  
 
 public class Ball : MonoBehaviour
 {
     [SerializeField] private PhysicsMaterial2D material;
-    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TMPro.TextMeshProUGUI scoreText;
     [SerializeField] private SceneMNG scene_ref;
 
-    public static int score = 0, first_health = 2;
-
-    private static int throwForceLVL = 0, health = first_health, health_level = 0;
-    private readonly float friction = 0.32f, force = 17f, def_bounciness = 0.1f;
+    public static int score = 0, first_health = 2, max_health = 3;
     private int score_multiplier = 1;
-    private SpriteRenderer _renderer;
-    private bool ballTaken = false;
-    private Player player = null;
-    private Vector3 first_size;
-    private Rigidbody2D rb;
+    private static int throwForceLVL = 1, health = first_health, health_level = 0;
     
+    private readonly float friction = 0.25f, force = 17f, bounciness_bonus = 0.08f;
+    private float def_bounciness = 0.15f;
+
+    private bool ballTaken = false;
+
+    private SpriteRenderer _renderer;
+    private Player player = null;
+    private Vector3 first_size = Vector3.zero;
+    private Rigidbody2D rb;
     
     public bool GetBallTaken(){return ballTaken;}
 
@@ -45,6 +47,7 @@ public class Ball : MonoBehaviour
         health += health_level;
         first_size = transform.localScale;
         scoreText.text = score.ToString();
+        def_bounciness += (throwForceLVL / 100);
         material.bounciness = def_bounciness;
         BallColorHandling();
     }
@@ -54,7 +57,7 @@ public class Ball : MonoBehaviour
         
         material.bounciness = (ballTaken == true) ? 0f : def_bounciness;
  
-        if (transform.position.y < -9)
+        if (transform.position.y < -6.66f)
         {
             scene_ref.OpenGameOverMenu();
         }
@@ -68,8 +71,8 @@ public class Ball : MonoBehaviour
         { 
             if (player.GetKick())
             {
-                float level_benefit = (throwForceLVL * 1.45f);
-                rb.velocity = Vector2.Lerp(rb.velocity, (player.transform.position - transform.position) * -(force + level_benefit), ((force + 20) + level_benefit) * Time.deltaTime);
+                float level_benefit = throwForceLVL * player.GetShipNo();
+                rb.velocity = Vector2.Lerp(rb.velocity, (player.transform.position - transform.position) * -(force + level_benefit), (force + 20 + level_benefit) * Time.deltaTime);
                 player = null;
                 ballTaken = false;
             }
@@ -110,7 +113,7 @@ public class Ball : MonoBehaviour
                 obs.SetHealth(obs.GetHealth() - 1);
                 ScoreChanged(score + score_multiplier);
                 score_multiplier += 1;
-                material.bounciness += 0.05f;
+                material.bounciness += bounciness_bonus;
                 rb.velocity *= 1.01f;
                 transform.localScale *= 1.04f;
             }
@@ -121,7 +124,7 @@ public class Ball : MonoBehaviour
             {
                 obs.SetHealth(obs.GetHealth() - 1);
                 PerkHandler.materials += 1;
-                material.bounciness += 0.05f;
+                material.bounciness += bounciness_bonus;
                 rb.velocity *= 1.01f;
                 transform.localScale *= 1.04f;
             }
@@ -131,8 +134,8 @@ public class Ball : MonoBehaviour
             if (!ballTaken)
             {
                 obs.SetHealth(obs.GetHealth() - 1);
-                health = Mathf.Clamp(health + 1, 0, 3);
-                material.bounciness += 0.05f;
+                health = Mathf.Clamp(health + 1, 0, health + health_level);
+                material.bounciness += bounciness_bonus;
                 rb.velocity *= 1.01f;
                 transform.localScale *= 1.04f;
             }
@@ -143,7 +146,7 @@ public class Ball : MonoBehaviour
             {
                 obs.SetHealth(obs.GetHealth() - 1);
                 ScoreChanged(score + 10);
-                material.bounciness += 0.05f;
+                material.bounciness += bounciness_bonus;
                 rb.velocity *= 1.01f;
                 transform.localScale *= 1.04f;
             }
@@ -151,7 +154,7 @@ public class Ball : MonoBehaviour
         else
         {
             transform.localScale = first_size;
-            material.bounciness -= 0.03f;
+            material.bounciness -= bounciness_bonus;
         }
 
         BallColorHandling();

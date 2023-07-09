@@ -1,17 +1,19 @@
-using TMPro;
+//using TMPro;
+//using UnityEngine.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class SceneMNG : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI target_score_text, start_score_text, mastery_text;
+    [SerializeField] private TMPro.TextMeshProUGUI target_score_text, start_score_text, mastery_text;
     [SerializeField] private UnityEngine.UI.Slider scoreSlider;
-    [SerializeField] private TextMeshProUGUI final_score_text;
+    [SerializeField] private TMPro.TextMeshProUGUI final_score_text;
     
-    private static int target_score = first_target_score, mastery_lvl = 0, start_score;
+    private static int target_score = first_target_score, mastery_lvl = 100, start_score = 0;
     private const int first_target_score = 10;
-    private PerkHandler perkHandler;
-    private Ball ball;
+    private readonly PerkHandler perkHandler = new();
+    private readonly Ball ball = new();
+    private readonly Player player = new();
+
 
     public int GetMastery()
     {
@@ -25,14 +27,11 @@ public class SceneMNG : MonoBehaviour
 
     private void Start()
     {
-        ball = new();
-        perkHandler = new();
-
-        if (SceneManager.GetActiveScene().name == "GameOver")
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "GameOver")
         {
             final_score_text.text = Ball.score.ToString();
         }
-        else if (SceneManager.GetActiveScene().name == "Menu")
+        else if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Menu")
         {
             ChangeMastery(mastery_lvl);
             ChangeTargetScore(target_score);
@@ -43,9 +42,8 @@ public class SceneMNG : MonoBehaviour
     
     void FixedUpdate()
     {
-        if (SceneManager.GetActiveScene().name == "Menu")
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Menu")
         {
-
             if (Mathf.Abs(scoreSlider.value - Ball.score) > 0.4f)
             {
                 scoreSlider.value = Mathf.Lerp(scoreSlider.value, Ball.score, 0.8f * Time.deltaTime);
@@ -59,6 +57,8 @@ public class SceneMNG : MonoBehaviour
                 ChangeTargetScore(target_score + 10);
                 ChangeStartScore(0);
             }
+
+            
         }
     }
 
@@ -93,37 +93,42 @@ public class SceneMNG : MonoBehaviour
     public void PlayGame()
     {
         Ball.score = 0;
-        SceneManager.LoadScene("Game");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Game");
     }
 
     public void OpenMainMenu()
     {
-        SceneManager.LoadScene("Menu");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
+    }
+
+    public void OpenShipMenu()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("ShipMenu");
     }
 
     public void OpenModifications()
     {
-        SceneManager.LoadScene("Modifications");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Modifications");
     }
 
     public void OpenPerks()
     {
         perkHandler.HandleButtonActivation();
-        SceneManager.LoadScene("Perks");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Perks");
     }
 
     public void OpenGameOverMenu()
     {
+        player.SetHealth(Player.first_health);
         ball.SetHealth(Ball.first_health);
         perkHandler.DisableFixTheBall();
         perkHandler.DisablePlusTen();
-        SceneManager.LoadScene("GameOver");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
     }
 
     public void QuitGame()
     {
         Application.Quit();
     }
-
 
 }

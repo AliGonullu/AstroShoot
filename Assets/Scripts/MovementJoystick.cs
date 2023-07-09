@@ -1,11 +1,12 @@
+//using UnityEngine.EventSystems;
 using UnityEngine;
-using UnityEngine.EventSystems;
+
 
 public class MovementJoystick : MonoBehaviour
 {
     [SerializeField] private GameObject joystickBG, joystick;
-    private Vector2 joystickVector2, joystickOriginalPos, joystickTouchPos;
-    private float joystickRadius, joystickReach = 80;
+    private Vector2 joystickVector2 = Vector2.zero, joystickOriginalPos = Vector2.zero, joystickTouchPos = Vector2.zero;
+    private float joystickRadius = 0, joystickReach = 80;
 
 
     public Vector2 GetJoystickVector2(){return joystickVector2;}
@@ -32,11 +33,11 @@ public class MovementJoystick : MonoBehaviour
         }         
     }
 
-    public void Drag(BaseEventData baseEventData)
+    public void Drag(UnityEngine.EventSystems.BaseEventData baseEventData)
     {
         if (Vector2.Distance(joystickTouchPos, joystickOriginalPos) < joystickReach)
         {
-            PointerEventData pointerEventData = baseEventData as PointerEventData;
+            UnityEngine.EventSystems.PointerEventData pointerEventData = baseEventData as UnityEngine.EventSystems.PointerEventData;
             Vector2 dragPos = pointerEventData.position;
             joystickVector2 = (dragPos - joystickTouchPos).normalized;
 

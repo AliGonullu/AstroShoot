@@ -1,15 +1,19 @@
-using TMPro;
+//using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class LevelHandler : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI[] LVLTexts, masteryRequirementsTexts;
-    [SerializeField] private TextMeshProUGUI masteryText;
+    [SerializeField] private TMPro.TextMeshProUGUI[] LVLTexts, masteryRequirementsTexts;
+    [SerializeField] private TMPro.TextMeshProUGUI masteryText;
 
-    private readonly int[] score_limits = { 1, 2, 4, 8, 16, 32, 64 };
+    private readonly static int score_limit1 = 1, score_limit2 = 1, score_limit3 = 1;
+
+    private readonly static int[] score_limits = { score_limit1, score_limit2, score_limit3};
     private readonly SceneMNG sMNG = new();
     private readonly Texts texts = new();
     private readonly Ball ball = new();
+
     private int button_index = 0;
     
     private void Start()
@@ -17,13 +21,13 @@ public class LevelHandler : MonoBehaviour
         ChangeMastery(sMNG.GetMastery());
 
         LVLTexts[0].text = Player.playerSpeedLVL.ToString();
-        masteryRequirementsTexts[0].text = texts.MasteryTextHandling(score_limits[Player.playerSpeedLVL].ToString());
+        masteryRequirementsTexts[0].text = "(" + texts.MasteryTextHandling(score_limits[0].ToString()) + ")";
 
         LVLTexts[1].text = ball.GetThrowForceLVL().ToString();
-        masteryRequirementsTexts[1].text = texts.MasteryTextHandling(score_limits[ball.GetThrowForceLVL()].ToString());
+        masteryRequirementsTexts[1].text = "(" + texts.MasteryTextHandling(score_limits[1].ToString()) + ")";
 
         LVLTexts[2].text = ball.GetHealthLVL().ToString();
-        masteryRequirementsTexts[2].text = texts.MasteryTextHandling(score_limits[ball.GetHealthLVL()].ToString());
+        masteryRequirementsTexts[2].text = "(" + texts.MasteryTextHandling(score_limits[2].ToString()) + ")";
     }
 
     public void PlayerSpeedButtonDown()
@@ -38,23 +42,32 @@ public class LevelHandler : MonoBehaviour
 
     public void ExtraHealthForBall()
     {
-        ball.SetHealthLVL(ButtonProcess(2, ball.GetHealthLVL()));
+        if(Ball.max_health > ball.GetHealthLVL())
+        {
+            ball.SetHealthLVL(ButtonProcess(2, ball.GetHealthLVL()));
+        }
+        else
+        {
+            masteryRequirementsTexts[2].text = "(Max. Level)";
+        }
     }
 
     private int ButtonProcess(int _button_idx, int _lvl)
     {
         button_index = _button_idx;
-        if (sMNG.GetMastery() >= score_limits[_lvl])
+        if (sMNG.GetMastery() >= score_limits[button_index])
         {
-            ChangeMastery(sMNG.GetMastery() - score_limits[_lvl]);
-            sMNG.ResetScoreSlider();
+            
+            ChangeMastery(sMNG.GetMastery() - score_limits[button_index]);
             _lvl += 1;
+            score_limits[_button_idx] *= 2;
+            sMNG.ResetScoreSlider();
             LVLTexts[button_index].text = _lvl.ToString();
-            masteryRequirementsTexts[button_index].text = texts.MasteryTextHandling(score_limits[_lvl].ToString());
+            masteryRequirementsTexts[button_index].text = "(" + texts.MasteryTextHandling(score_limits[button_index].ToString()) + ")";
         }
         else
         {
-            masteryRequirementsTexts[button_index].text = texts.insufficient_highscore;
+            masteryRequirementsTexts[button_index].text = "(" + texts.insufficient_mastery + ")";
         }
         return _lvl;
     }
@@ -65,7 +78,7 @@ public class LevelHandler : MonoBehaviour
         if(masteryText != null)
         {
             sMNG.SetMastery(_new_value);
-            masteryText.text = "(Mastery : " + _new_value.ToString() + ")";
+            masteryText.text = "(" + texts.MasteryTextHandling(_new_value.ToString()) + ")";
         }
     }
     

@@ -3,24 +3,40 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField] private MovementJoystick joystick;
-    [SerializeField] private GameObject engineEffect;
+    [SerializeField] private GameObject[] engineEffects;
     [SerializeField] private SceneMNG scene_ref;
-
-    public static int playerSpeedLVL = 0, health = 3;
-    private float playerSpeed = 305, zAxis;
+    public static int engine_effect_idx = 0, first_health = 3, playerSpeedLVL = 1;
+    private static int health = first_health, ship_no = 1;
+    private readonly float playerSpeed = 305;
+    private float zAxis = 0f;
     private SpriteRenderer spriteRenderer;
-    //private readonly BallSlot ballSlot;
+    private string ship_name = "Ship";
     private bool kick = false;
     private Rigidbody2D rb;
 
 
-    public bool GetKick(){return kick;}
-    public void SetKick(bool value){kick = value;}
+    public int GetHealth() { return health; }
+    public void SetHealth(int value) { health = value; }
+
+    public int GetShipNo() { return ship_no; }
+    public void SetShipNo(int _no) { ship_no = _no; }
+
+    public bool GetKick() { return kick; }
+    public void SetKick(bool value) { kick = value; }
 
     private void Start()
     {
+        ship_name += ship_no.ToString();
         spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
+        var _sprite = Resources.Load<Sprite>("Sprites/Ships/" + ship_name);
+        spriteRenderer.sprite = _sprite;
         rb = GetComponent<Rigidbody2D>();
+
+        for (int i = 0; i < engineEffects.Length; i++)
+        {
+            if(engine_effect_idx != i)
+                Destroy(engineEffects[i]);
+        }
     }
 
     void FixedUpdate()
@@ -38,9 +54,9 @@ public class Player : MonoBehaviour
         {
             if (joystick.GetJoystickVector2() != Vector2.zero)
             {
-                engineEffect.SetActive(true);
+                engineEffects[engine_effect_idx].SetActive(true);
                 rb.freezeRotation = false;
-                float level_benefit = ((playerSpeedLVL - 1) * 11);
+                float level_benefit = Mathf.Pow(playerSpeedLVL, 2) * Mathf.Pow(ship_no, 3f);
                 rb.velocity = new Vector2(joystick.GetJoystickVector2().x * (playerSpeed + level_benefit) * Time.deltaTime, joystick.GetJoystickVector2().y * (playerSpeed + level_benefit) * Time.deltaTime);
                 float hAxis = joystick.GetJoystickVector2().x;
                 float vAxis = joystick.GetJoystickVector2().y;
@@ -49,9 +65,9 @@ public class Player : MonoBehaviour
             }
             else
             {
-                engineEffect.SetActive(false);
+                engineEffects[engine_effect_idx].SetActive(false);
                 rb.freezeRotation = true;
-                float friction = 3.0f;
+                float friction = 2.5f * (ship_no);
                 rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, friction * Time.deltaTime);
             }
         }

@@ -1,18 +1,21 @@
-using TMPro;
+//using TMPro;
+//using UnityEngine.UI;
 using UnityEngine;
-using UnityEngine.UI;
+
 
 public class PerkHandler : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI[] materialsRequirementsTexts;
-    [SerializeField] private Button fixTheBallButton, plusTenScoreButton;
+    [SerializeField] private TMPro.TextMeshProUGUI[] materialsRequirementsTexts, perk_buttons_texts;
+    [SerializeField] private UnityEngine.UI.Button fixTheBallButton, plusTenScoreButton;
     [SerializeField] private GameObject fixTheBall, plusTenScore;
-    [SerializeField] private TextMeshProUGUI materialsText;
+    [SerializeField] private TMPro.TextMeshProUGUI materialsText;
+    
 
     private static bool fixTheBallEnabled = false, plusTenScoreEnabled = false;
     private readonly static float[] material_requirements = { 1, 1, 50 };
     public static float materials = 2;
     private Texts texts;
+
 
     public bool GetFixTheBallEnabled() { return fixTheBallEnabled; }
     public bool GetPlusTenScoreEnabled() { return plusTenScoreEnabled; }
@@ -22,15 +25,15 @@ public class PerkHandler : MonoBehaviour
         texts = new();
         HandleButtonActivation();
         MaterialChanged(materials);
-        materialsRequirementsTexts[0].text = texts.MaterialTextHandling(material_requirements[0].ToString());
-        materialsRequirementsTexts[1].text = texts.MaterialTextHandling(material_requirements[1].ToString());
-        materialsRequirementsTexts[2].text = texts.MaterialTextHandling(material_requirements[2].ToString());
+        materialsRequirementsTexts[0].text = "(" + texts.MaterialTextHandling(material_requirements[0].ToString()) + ")";
+        materialsRequirementsTexts[1].text = "(" + texts.MaterialTextHandling(material_requirements[1].ToString()) + ")";
+        materialsRequirementsTexts[2].text = "(" + texts.MaterialTextHandling(material_requirements[2].ToString()) + ")";
 
         if (fixTheBallEnabled)
             materialsRequirementsTexts[0].text = texts.purchased;
         if(plusTenScoreEnabled)
             materialsRequirementsTexts[1].text = texts.purchased;
-        
+
     }
 
     public void ResetCosts()
@@ -39,12 +42,12 @@ public class PerkHandler : MonoBehaviour
         {
             material_requirements[0] = 1;
             material_requirements[1] = 1;
-            materialsRequirementsTexts[0].text = texts.MaterialTextHandling(material_requirements[0].ToString());
-            materialsRequirementsTexts[1].text = texts.MaterialTextHandling(material_requirements[1].ToString());
+            materialsRequirementsTexts[0].text = "(" + texts.MaterialTextHandling(material_requirements[0].ToString()) + ")";
+            materialsRequirementsTexts[1].text = "(" + texts.MaterialTextHandling(material_requirements[1].ToString()) + ")";
         }
         else
         {
-            materialsRequirementsTexts[2].text = texts.insufficient_materials;
+            materialsRequirementsTexts[2].text = "(" + texts.insufficient_materials + ")";
         }
     }
 
@@ -64,7 +67,7 @@ public class PerkHandler : MonoBehaviour
         }
         else
         {
-            materialsRequirementsTexts[0].text = texts.insufficient_materials;
+            materialsRequirementsTexts[0].text = "(" + texts.insufficient_materials + ")";
         }
     }
 
@@ -78,7 +81,7 @@ public class PerkHandler : MonoBehaviour
         }
         else
         {
-            materialsRequirementsTexts[1].text = texts.insufficient_materials;
+            materialsRequirementsTexts[1].text = "(" + texts.insufficient_materials + ")";
         }
     }
 
@@ -113,13 +116,14 @@ public class PerkHandler : MonoBehaviour
         {
             fixTheBallButton.interactable = !fixTheBallEnabled;
             if (fixTheBallEnabled)
-                materialsRequirementsTexts[0].text = texts.purchased;
+                materialsRequirementsTexts[0].text = "(" + texts.purchased  + ")";
         }
         if (plusTenScoreButton != null)
         {
             plusTenScoreButton.interactable = !plusTenScoreEnabled;
             if (plusTenScoreEnabled)
-                materialsRequirementsTexts[1].text = texts.purchased;
+                materialsRequirementsTexts[1].text = "(" + texts.purchased + ")";
         }
     }
+
 }
