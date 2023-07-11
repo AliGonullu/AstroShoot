@@ -1,17 +1,28 @@
-//using TMPro;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ShipHandler : MonoBehaviour
 {
-    [SerializeField] private TMPro.TextMeshProUGUI[] MasteryRequirements;
-    [SerializeField] private TMPro.TextMeshProUGUI mastery_text;
+    [SerializeField] private TextMeshProUGUI[] MasteryRequirements;
+    [SerializeField] private TextMeshProUGUI mastery_text;
     private readonly int[] mastery_req_for_ships = { 0, 5, 15, 30, 50 };
-    private readonly Player player = new();
-    private readonly SceneMNG sceneMNG = new();
-    private readonly Texts texts = new();
+    private Player player;
+    private SceneMNG sceneMNG;
+    private Texts texts;
+
+
+    private void Awake()
+    {
+        enabled = (SceneManager.GetActiveScene().name == "ShipMenu");
+    }
 
     private void Start()
     {
+        sceneMNG = new();
+        texts = new();
+        player = new();
+
         for (int i = 0; i < mastery_req_for_ships.Length; i++)
         {
             MasteryRequirements[i].text = texts.MasteryTextHandling(mastery_req_for_ships[i].ToString());

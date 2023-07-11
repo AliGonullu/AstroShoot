@@ -1,14 +1,13 @@
-//using TMPro;
-//using UnityEngine.UI;
+using TMPro;
+using UnityEngine.UI;
 using UnityEngine;
-
 
 public class PerkHandler : MonoBehaviour
 {
-    [SerializeField] private TMPro.TextMeshProUGUI[] materialsRequirementsTexts, perk_buttons_texts;
-    [SerializeField] private UnityEngine.UI.Button fixTheBallButton, plusTenScoreButton;
+    [SerializeField] private TextMeshProUGUI[] materialsRequirementsTexts, perk_buttons_texts;
+    [SerializeField] private Button fixTheBallButton, plusTenScoreButton;
     [SerializeField] private GameObject fixTheBall, plusTenScore;
-    [SerializeField] private TMPro.TextMeshProUGUI materialsText;
+    [SerializeField] private TextMeshProUGUI materialsText;
     
 
     private static bool fixTheBallEnabled = false, plusTenScoreEnabled = false;
@@ -20,9 +19,11 @@ public class PerkHandler : MonoBehaviour
     public bool GetFixTheBallEnabled() { return fixTheBallEnabled; }
     public bool GetPlusTenScoreEnabled() { return plusTenScoreEnabled; }
 
+
     private void Start()
     {
         texts = new();
+        
         HandleButtonActivation();
         MaterialChanged(materials);
         materialsRequirementsTexts[0].text = "(" + texts.MaterialTextHandling(material_requirements[0].ToString()) + ")";

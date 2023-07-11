@@ -1,10 +1,11 @@
-//using TMPro;
-using UnityEngine;  
+using TMPro;
+using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
+    [SerializeField] private ScreenShake screenShake;
     [SerializeField] private PhysicsMaterial2D material;
-    [SerializeField] private TMPro.TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private SceneMNG scene_ref;
 
     public static int score = 0, first_health = 2, max_health = 3;
@@ -23,12 +24,10 @@ public class Ball : MonoBehaviour
     
     public bool GetBallTaken(){return ballTaken;}
 
-    //public int GetHealth() { return health; }
     public void SetHealth(int _new_value) { health = _new_value; }
 
     public int GetHealthLVL() { return health_level; }
     public void SetHealthLVL(int _new_value) { health_level = _new_value; }
-
 
     public int GetThrowForceLVL() { return throwForceLVL; }
     public void SetThrowForceLVL(int _new_value) { throwForceLVL = _new_value; }
@@ -54,25 +53,33 @@ public class Ball : MonoBehaviour
 
     void FixedUpdate()
     {
-        
-        material.bounciness = (ballTaken == true) ? 0f : def_bounciness;
+        if (ballTaken)
+        {
+            material.bounciness = 0f;
+        }
+        else
+        {
+            material.bounciness = def_bounciness;
+        }
  
-        if (transform.position.y < -6.66f)
+        if (transform.position.y < -6.68f)
         {
             scene_ref.OpenGameOverMenu();
         }
+            
 
         if (rb.velocity != Vector2.zero)
         {
             rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, friction * Time.deltaTime);
         }
+            
 
         if (player != null)
         { 
             if (player.GetKick())
             {
                 float level_benefit = throwForceLVL * player.GetShipNo();
-                rb.velocity = Vector2.Lerp(rb.velocity, (player.transform.position - transform.position) * -(force + level_benefit), (force + 20 + level_benefit) * Time.deltaTime);
+                rb.velocity = Vector2.Lerp(rb.velocity, (player.transform.position - transform.position) * -(force + level_benefit), (force + 16 + level_benefit) * Time.deltaTime);
                 player = null;
                 ballTaken = false;
             }
@@ -95,6 +102,10 @@ public class Ball : MonoBehaviour
                 //Destroy(gameObject);
                 gameObject.SetActive(false);
                 scene_ref.OpenGameOverMenu();
+            }
+            else
+            {
+                StartCoroutine(screenShake.Shake(0.2f, 0.5f));
             }
             transform.localScale = first_size;
         }

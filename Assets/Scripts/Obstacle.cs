@@ -5,8 +5,8 @@ public class Obstacle : MonoBehaviour
     [SerializeField] private int health;
 
     private static int destroyed_obs_count = 0;
-    private static float obstacleSpeed = 2.6f;
-    private readonly float extra_speed = 0.09f;
+    private static float obstacleSpeed = 2.5f;
+    private readonly float extra_speed = 0.06f;
 
     public void SetHealth(int _health) { health = _health; }
     public int GetHealth() { return health; }
@@ -38,10 +38,12 @@ public class Obstacle : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        if(collision.gameObject.layer == 7 || collision.gameObject.name.StartsWith("Obstacle") || collision.gameObject.name.EndsWith("Obstacle"))
-            Destroy(gameObject);
+        if(collision.gameObject.layer == 7 || collision.gameObject.name.StartsWith("Obstacle") || collision.gameObject.name.StartsWith("Gold"))
+        {
+            Destroy(collision.gameObject);
+        }
     }
 
 }

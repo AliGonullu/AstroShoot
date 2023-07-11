@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] private ScreenShake screenShake;
     [SerializeField] private MovementJoystick joystick;
     [SerializeField] private GameObject[] engineEffects;
     [SerializeField] private SceneMNG scene_ref;
@@ -10,12 +11,9 @@ public class Player : MonoBehaviour
     private readonly float playerSpeed = 305;
     private float zAxis = 0f;
     private SpriteRenderer spriteRenderer;
-    private string ship_name = "Ship";
     private bool kick = false;
     private Rigidbody2D rb;
 
-
-    public int GetHealth() { return health; }
     public void SetHealth(int value) { health = value; }
 
     public int GetShipNo() { return ship_no; }
@@ -24,11 +22,12 @@ public class Player : MonoBehaviour
     public bool GetKick() { return kick; }
     public void SetKick(bool value) { kick = value; }
 
+    
+
     private void Start()
     {
-        ship_name += ship_no.ToString();
         spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
-        var _sprite = Resources.Load<Sprite>("Sprites/Ships/" + ship_name);
+        var _sprite = Resources.Load<Sprite>("Sprites/Ships/" + "Ship" + ship_no.ToString());
         spriteRenderer.sprite = _sprite;
         rb = GetComponent<Rigidbody2D>();
 
@@ -95,7 +94,8 @@ public class Player : MonoBehaviour
             }
             if(health <= 0)
                 scene_ref.OpenGameOverMenu();
+            else
+                StartCoroutine(screenShake.Shake(0.3f, 0.45f));
         }
     }
-
 }

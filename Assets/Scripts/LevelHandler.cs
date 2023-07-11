@@ -1,23 +1,26 @@
-//using TMPro;
-using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
 
 public class LevelHandler : MonoBehaviour
 {
-    [SerializeField] private TMPro.TextMeshProUGUI[] LVLTexts, masteryRequirementsTexts;
-    [SerializeField] private TMPro.TextMeshProUGUI masteryText;
+    [SerializeField] private TextMeshProUGUI[] LVLTexts, masteryRequirementsTexts;
+    [SerializeField] private TextMeshProUGUI masteryText;
 
     private readonly static int score_limit1 = 1, score_limit2 = 1, score_limit3 = 1;
 
     private readonly static int[] score_limits = { score_limit1, score_limit2, score_limit3};
-    private readonly SceneMNG sMNG = new();
-    private readonly Texts texts = new();
-    private readonly Ball ball = new();
+    private SceneMNG sMNG;
+    private Texts texts;
+    private Ball ball;
 
     private int button_index = 0;
     
     private void Start()
     {
+        sMNG = new();
+        texts = new();
+        ball = new();
+        
         ChangeMastery(sMNG.GetMastery());
 
         LVLTexts[0].text = Player.playerSpeedLVL.ToString();

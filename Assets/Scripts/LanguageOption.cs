@@ -1,13 +1,13 @@
-//using TMPro;
-//using UnityEngine.UI;
+using TMPro;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class LanguageOption : MonoBehaviour
 {
-    private UnityEngine.UI.Slider language_option_slider;
+    private Slider language_option_slider;
     public static int languageSliderValue = 0;
 
-    public UnityEngine.UI.Slider GetLanguageSlider() 
+    public Slider GetLanguageSlider() 
     {
         if(language_option_slider != null)
             return language_option_slider;
@@ -16,7 +16,7 @@ public class LanguageOption : MonoBehaviour
 
     void Start()
     {
-        language_option_slider = GetComponentInChildren<UnityEngine.UI.Slider>();
+        language_option_slider = GetComponentInChildren<Slider>();
         language_option_slider.onValueChanged.AddListener(delegate { SliderValueChanged(); });
     }
 
@@ -26,10 +26,10 @@ public class LanguageOption : MonoBehaviour
         switch (language_option_slider.value)
         {
             case 0:
-                gameObject.GetComponent<TMPro.TextMeshProUGUI>().text = "English";
+                gameObject.GetComponent<TextMeshProUGUI>().text = "English";
                 break;
             case 1:
-                gameObject.GetComponent<TMPro.TextMeshProUGUI>().text = "Turkish";
+                gameObject.GetComponent<TextMeshProUGUI>().text = "Turkish";
                 break;
         }
     }
