@@ -3,18 +3,14 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
+    private SoundEffect _soundEffect;
+
     [SerializeField] private ScreenShake screenShake;
     [SerializeField] private PhysicsMaterial2D material;
-    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI scoreText, scoreMtpText;
     [SerializeField] private SceneMNG scene_ref;
 
-    public static int score = 0, first_health = 2, max_health = 3;
     private int score_multiplier = 1;
-    private static int throwForceLVL = 1, health = first_health, health_level = 0;
-    
-    private readonly float friction = 0.25f, force = 17f, bounciness_bonus = 0.08f;
-    private float def_bounciness = 0.15f;
-
     private bool ballTaken = false;
 
     private SpriteRenderer _renderer;
@@ -24,30 +20,24 @@ public class Ball : MonoBehaviour
     
     public bool GetBallTaken(){return ballTaken;}
 
-    public void SetHealth(int _new_value) { health = _new_value; }
-
-    public int GetHealthLVL() { return health_level; }
-    public void SetHealthLVL(int _new_value) { health_level = _new_value; }
-
-    public int GetThrowForceLVL() { return throwForceLVL; }
-    public void SetThrowForceLVL(int _new_value) { throwForceLVL = _new_value; }
-
     private void ScoreChanged(int _new_value) 
     {
-        score = _new_value;
-        scoreText.text = score.ToString();
+        Variables.score = _new_value;
+        scoreText.text = Variables.score.ToString();
     }
 
     void Start()
     {
         _renderer = GetComponentInChildren<SpriteRenderer>();
+        _soundEffect = GetComponentInChildren<SoundEffect>();
         rb = GetComponent<Rigidbody2D>();
-        
-        health += health_level;
+
+        Variables.ball_health += Variables.ball_health_level;
         first_size = transform.localScale;
-        scoreText.text = score.ToString();
-        def_bounciness += (throwForceLVL / 100);
-        material.bounciness = def_bounciness;
+        scoreText.text = Variables.score.ToString();
+        ScoreMultiplierChange(score_multiplier);
+        Variables.default_ball_bounciness += (Variables.throw_force_lvl / 100);
+        material.bounciness = Variables.default_ball_bounciness;
         BallColorHandling();
     }
 
@@ -59,7 +49,7 @@ public class Ball : MonoBehaviour
         }
         else
         {
-            material.bounciness = def_bounciness;
+            material.bounciness = Variables.default_ball_bounciness;
         }
  
         if (transform.position.y < -6.68f)
@@ -70,7 +60,7 @@ public class Ball : MonoBehaviour
 
         if (rb.velocity != Vector2.zero)
         {
-            rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, friction * Time.deltaTime);
+            rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, Variables.ball_friction * Time.deltaTime);
         }
             
 
@@ -78,8 +68,8 @@ public class Ball : MonoBehaviour
         { 
             if (player.GetKick())
             {
-                float level_benefit = throwForceLVL * player.GetShipNo();
-                rb.velocity = Vector2.Lerp(rb.velocity, (player.transform.position - transform.position) * -(force + level_benefit), (force + 16 + level_benefit) * Time.deltaTime);
+                float level_benefit = Variables.throw_force_lvl * (Variables.ship_no / 5.0f);
+                rb.velocity = Vector2.Lerp(rb.velocity, (player.transform.position - transform.position) * -(Variables.ball_force + level_benefit), (Variables.ball_force + 20 + level_benefit) * Time.deltaTime);
                 player = null;
                 ballTaken = false;
             }
@@ -94,17 +84,18 @@ public class Ball : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Obstacle obs = collision.gameObject.GetComponent<Obstacle>();
+
         if (collision.gameObject.name.StartsWith("FireWall") && !ballTaken)
         {
-            health = Mathf.Clamp(health - 1, 0, health);
-            if (health <= 0)
+            Variables.ball_health = Mathf.Clamp(Variables.ball_health - 1, 0, Variables.ball_health);
+            if (Variables.ball_health <= 0)
             {
-                //Destroy(gameObject);
                 gameObject.SetActive(false);
                 scene_ref.OpenGameOverMenu();
             }
             else
             {
+                _soundEffect.MetalSoundEffect();
                 StartCoroutine(screenShake.Shake(0.2f, 0.5f));
             }
             transform.localScale = first_size;
@@ -113,18 +104,22 @@ public class Ball : MonoBehaviour
         {
             player = collision.gameObject.GetComponent<Player>();
             player.SetKick(false);
-            material.bounciness = def_bounciness;
-            score_multiplier = 1;
+            material.bounciness = Variables.default_ball_bounciness;
+            //score_multiplier = 1;
+            ScoreMultiplierChange(1);
             transform.localScale = first_size;
         }
         else if (collision.gameObject.name.StartsWith("Obstacle") || collision.gameObject.name.StartsWith("Gold"))
         {
             if (!ballTaken)
             {
+                _soundEffect.PopSoundEffect();
+
                 obs.SetHealth(obs.GetHealth() - 1);
-                ScoreChanged(score + score_multiplier);
-                score_multiplier += 1;
-                material.bounciness += bounciness_bonus;
+                ScoreChanged(Variables.score + score_multiplier);
+                //score_multiplier += 1;
+                ScoreMultiplierChange(score_multiplier + 1);
+                material.bounciness += Variables.ball_bounciness_bonus;
                 rb.velocity *= 1.01f;
                 transform.localScale *= 1.04f;
             }
@@ -133,9 +128,11 @@ public class Ball : MonoBehaviour
         {
             if (!ballTaken)
             {
+                _soundEffect.PopSoundEffect();
+                
                 obs.SetHealth(obs.GetHealth() - 1);
                 PerkHandler.materials += 1;
-                material.bounciness += bounciness_bonus;
+                material.bounciness += Variables.ball_bounciness_bonus;
                 rb.velocity *= 1.01f;
                 transform.localScale *= 1.04f;
             }
@@ -144,9 +141,11 @@ public class Ball : MonoBehaviour
         {
             if (!ballTaken)
             {
+                _soundEffect.PopSoundEffect();
+
                 obs.SetHealth(obs.GetHealth() - 1);
-                health = Mathf.Clamp(health + 1, 0, health + health_level);
-                material.bounciness += bounciness_bonus;
+                Variables.ball_health = Mathf.Clamp(Variables.ball_health + 1, 0, Variables.ball_max_health);
+                material.bounciness += Variables.ball_bounciness_bonus;
                 rb.velocity *= 1.01f;
                 transform.localScale *= 1.04f;
             }
@@ -155,9 +154,11 @@ public class Ball : MonoBehaviour
         {
             if (!ballTaken)
             {
+                _soundEffect.PopSoundEffect();
+
                 obs.SetHealth(obs.GetHealth() - 1);
-                ScoreChanged(score + 10);
-                material.bounciness += bounciness_bonus;
+                ScoreChanged(Variables.score + 10);
+                material.bounciness += Variables.ball_bounciness_bonus;
                 rb.velocity *= 1.01f;
                 transform.localScale *= 1.04f;
             }
@@ -165,7 +166,7 @@ public class Ball : MonoBehaviour
         else
         {
             transform.localScale = first_size;
-            material.bounciness -= bounciness_bonus;
+            material.bounciness -= Variables.ball_bounciness_bonus;
         }
 
         BallColorHandling();
@@ -173,11 +174,11 @@ public class Ball : MonoBehaviour
 
     private void BallColorHandling()
     {
-        if (health == 3)
+        if (Variables.ball_health == 3)
             _renderer.material.color = Color.green;
-        else if (health == 2)
+        else if (Variables.ball_health == 2)
             _renderer.material.color = Color.yellow;
-        else if (health == 1)
+        else if (Variables.ball_health == 1)
             _renderer.material.color = Color.red;
     }
 
@@ -189,5 +190,13 @@ public class Ball : MonoBehaviour
             player.SetKick(false);
         }
     }
+
+    private void ScoreMultiplierChange(int new_value)
+    {
+        score_multiplier = new_value;
+        scoreMtpText.text = "x" + score_multiplier.ToString();
+    }
+
+
 
 }

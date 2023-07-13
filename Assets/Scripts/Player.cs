@@ -2,38 +2,36 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    private SoundEffect _soundEffect;
+
     [SerializeField] private ScreenShake screenShake;
     [SerializeField] private MovementJoystick joystick;
     [SerializeField] private GameObject[] engineEffects;
     [SerializeField] private SceneMNG scene_ref;
-    public static int engine_effect_idx = 0, first_health = 3, playerSpeedLVL = 1;
-    private static int health = first_health, ship_no = 1;
-    private readonly float playerSpeed = 305;
-    private float zAxis = 0f;
+    [SerializeField] private Ball ball;
     private SpriteRenderer spriteRenderer;
-    private bool kick = false;
     private Rigidbody2D rb;
 
-    public void SetHealth(int value) { health = value; }
-
-    public int GetShipNo() { return ship_no; }
-    public void SetShipNo(int _no) { ship_no = _no; }
-
+    private readonly float playerSpeed = 305;
+    private float zAxis = 0f;
+    private bool kick = false;
+    
     public bool GetKick() { return kick; }
     public void SetKick(bool value) { kick = value; }
 
-    
 
     private void Start()
     {
+        _soundEffect = GetComponentInChildren<SoundEffect>();
         spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
-        var _sprite = Resources.Load<Sprite>("Sprites/Ships/" + "Ship" + ship_no.ToString());
+        var _sprite = Resources.Load<Sprite>("Sprites/Ships/" + "Ship" + Variables.ship_no.ToString());
         spriteRenderer.sprite = _sprite;
         rb = GetComponent<Rigidbody2D>();
 
         for (int i = 0; i < engineEffects.Length; i++)
         {
-            if(engine_effect_idx != i)
+            
+            if(Variables.ship_engine_effect_idx != i)
                 Destroy(engineEffects[i]);
         }
     }
@@ -53,9 +51,9 @@ public class Player : MonoBehaviour
         {
             if (joystick.GetJoystickVector2() != Vector2.zero)
             {
-                engineEffects[engine_effect_idx].SetActive(true);
+                engineEffects[Variables.ship_engine_effect_idx].SetActive(true);
                 rb.freezeRotation = false;
-                float level_benefit = Mathf.Pow(playerSpeedLVL, 2) * Mathf.Pow(ship_no, 3f);
+                float level_benefit = Mathf.Pow(Variables.ship_speed_lvl, 1.5f) * Mathf.Pow(Variables.ship_no, 1.5f);
                 rb.velocity = new Vector2(joystick.GetJoystickVector2().x * (playerSpeed + level_benefit) * Time.deltaTime, joystick.GetJoystickVector2().y * (playerSpeed + level_benefit) * Time.deltaTime);
                 float hAxis = joystick.GetJoystickVector2().x;
                 float vAxis = joystick.GetJoystickVector2().y;
@@ -64,9 +62,9 @@ public class Player : MonoBehaviour
             }
             else
             {
-                engineEffects[engine_effect_idx].SetActive(false);
+                engineEffects[Variables.ship_engine_effect_idx].SetActive(false);
                 rb.freezeRotation = true;
-                float friction = 2.5f * (ship_no);
+                float friction = 2.5f * (Variables.ship_no);
                 rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, friction * Time.deltaTime);
             }
         }
@@ -82,8 +80,9 @@ public class Player : MonoBehaviour
         if (collision.gameObject.name.StartsWith("Obstacle"))
         {
             Destroy(collision.gameObject);
-            health -= 1;
-            switch (health)
+            _soundEffect.MetalSoundEffect();
+            Variables.ship_health -= 1;
+            switch (Variables.ship_health)
             {
                 case 3:
                     spriteRenderer.material.color = new Color(0, 0, 0); break;
@@ -92,10 +91,11 @@ public class Player : MonoBehaviour
                 case 1:
                     spriteRenderer.material.color = new Color(0.9f, 0.3f, 0.3f); break;
             }
-            if(health <= 0)
+            if(Variables.ship_health <= 0)
                 scene_ref.OpenGameOverMenu();
             else
                 StartCoroutine(screenShake.Shake(0.3f, 0.45f));
         }
     }
+
 }

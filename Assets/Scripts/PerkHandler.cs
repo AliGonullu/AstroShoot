@@ -10,31 +10,33 @@ public class PerkHandler : MonoBehaviour
     [SerializeField] private TextMeshProUGUI materialsText;
     
 
-    private static bool fixTheBallEnabled = false, plusTenScoreEnabled = false;
-    private readonly static float[] material_requirements = { 1, 1, 50 };
-    public static float materials = 2;
-    private Texts texts;
-
-
-    public bool GetFixTheBallEnabled() { return fixTheBallEnabled; }
-    public bool GetPlusTenScoreEnabled() { return plusTenScoreEnabled; }
+    public static bool fixTheBallEnabled = false, plusTenScoreEnabled = false;
+    private readonly static int[] material_requirements = { 1, 1, 50 };
+    public static int materials = 10;
 
 
     private void Start()
     {
-        texts = new();
         
         HandleButtonActivation();
         MaterialChanged(materials);
-        materialsRequirementsTexts[0].text = "(" + texts.MaterialTextHandling(material_requirements[0].ToString()) + ")";
-        materialsRequirementsTexts[1].text = "(" + texts.MaterialTextHandling(material_requirements[1].ToString()) + ")";
-        materialsRequirementsTexts[2].text = "(" + texts.MaterialTextHandling(material_requirements[2].ToString()) + ")";
+        materialsRequirementsTexts[0].text = "(" + Texts.MaterialTextHandling(material_requirements[0].ToString()) + ")";
+        materialsRequirementsTexts[1].text = "(" + Texts.MaterialTextHandling(material_requirements[1].ToString()) + ")";
+        materialsRequirementsTexts[2].text = "(" + Texts.MaterialTextHandling(material_requirements[2].ToString()) + ")";
 
         if (fixTheBallEnabled)
-            materialsRequirementsTexts[0].text = texts.purchased;
+            materialsRequirementsTexts[0].text = Texts.purchased;
         if(plusTenScoreEnabled)
-            materialsRequirementsTexts[1].text = texts.purchased;
+            materialsRequirementsTexts[1].text = Texts.purchased;
 
+    }
+
+    public static void GameOverScene()
+    {
+        fixTheBallEnabled = false;
+        SpawnManager.enabled_indexes.Remove(8);
+        plusTenScoreEnabled = false;
+        SpawnManager.enabled_indexes.Remove(9);
     }
 
     public void ResetCosts()
@@ -43,19 +45,19 @@ public class PerkHandler : MonoBehaviour
         {
             material_requirements[0] = 1;
             material_requirements[1] = 1;
-            materialsRequirementsTexts[0].text = "(" + texts.MaterialTextHandling(material_requirements[0].ToString()) + ")";
-            materialsRequirementsTexts[1].text = "(" + texts.MaterialTextHandling(material_requirements[1].ToString()) + ")";
+            materialsRequirementsTexts[0].text = "(" + Texts.MaterialTextHandling(material_requirements[0].ToString()) + ")";
+            materialsRequirementsTexts[1].text = "(" + Texts.MaterialTextHandling(material_requirements[1].ToString()) + ")";
         }
         else
         {
-            materialsRequirementsTexts[2].text = "(" + texts.insufficient_materials + ")";
+            materialsRequirementsTexts[2].text = "(" + Texts.insufficient_materials + ")";
         }
     }
 
-    private void MaterialChanged(float _new_value)
+    private void MaterialChanged(int _new_value)
     {
         materials = _new_value;
-        materialsText.text = texts.MaterialTextHandling(materials.ToString());
+        materialsText.text = Texts.MaterialTextHandling(materials.ToString());
     }
 
     public void EnableFixTheBall()
@@ -68,7 +70,7 @@ public class PerkHandler : MonoBehaviour
         }
         else
         {
-            materialsRequirementsTexts[0].text = "(" + texts.insufficient_materials + ")";
+            materialsRequirementsTexts[0].text = "(" + Texts.insufficient_materials + ")";
         }
     }
 
@@ -82,7 +84,7 @@ public class PerkHandler : MonoBehaviour
         }
         else
         {
-            materialsRequirementsTexts[1].text = "(" + texts.insufficient_materials + ")";
+            materialsRequirementsTexts[1].text = "(" + Texts.insufficient_materials + ")";
         }
     }
 
@@ -117,14 +119,16 @@ public class PerkHandler : MonoBehaviour
         {
             fixTheBallButton.interactable = !fixTheBallEnabled;
             if (fixTheBallEnabled)
-                materialsRequirementsTexts[0].text = "(" + texts.purchased  + ")";
+                materialsRequirementsTexts[0].text = "(" + Texts.purchased  + ")";
         }
         if (plusTenScoreButton != null)
         {
             plusTenScoreButton.interactable = !plusTenScoreEnabled;
             if (plusTenScoreEnabled)
-                materialsRequirementsTexts[1].text = "(" + texts.purchased + ")";
+                materialsRequirementsTexts[1].text = "(" + Texts.purchased + ")";
         }
     }
+
+
 
 }

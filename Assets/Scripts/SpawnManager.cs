@@ -4,7 +4,7 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject[] obstacles;
-    public static List<int> enabled_indexes;
+    public static List<int> enabled_indexes = new();
     private float old_offset = 0f, new_offset = 0f;
     private readonly int obs_last_idx = 8;
     private int fix_idx = 0, plus_ten_idx = 0, random_range_upper_limit = 85, random_range_lower_limit = 15;
@@ -12,15 +12,20 @@ public class SpawnManager : MonoBehaviour
 
     void Start()
     {
-        enabled_indexes = new List<int>();
         ChangeOffset();
 
         fix_idx = obs_last_idx + 1;
         plus_ten_idx = obs_last_idx + 2;
 
-        for (int i = 0; i <= obs_last_idx; i++)
+        for (int i = 0; i <= plus_ten_idx; i++)
             enabled_indexes.Add(i);
-        InvokeRepeating(nameof(Spawn), 3, 2.8f - (obstacles[0].GetComponent<Obstacle>().GetObstacleSpeed() / 4.5f));
+
+        if (PerkHandler.plusTenScoreEnabled)
+            enabled_indexes.Remove(plus_ten_idx);
+        if (PerkHandler.fixTheBallEnabled)
+            enabled_indexes.Remove(fix_idx);
+
+        InvokeRepeating(nameof(Spawn), 3, 2.8f - (Variables.obstacle_speed / 2.8f));
     }
 
     void Spawn()
@@ -39,17 +44,16 @@ public class SpawnManager : MonoBehaviour
 
     private void PerkSpawner()
     {
-        PerkHandler ph = new();
-        if ((Random.Range(0, 10) > 4.5f) && (ph.GetFixTheBallEnabled() || ph.GetPlusTenScoreEnabled()))
+        if (Random.Range(0, 100) > 20f && (PerkHandler.fixTheBallEnabled || PerkHandler.plusTenScoreEnabled))
         {
             int perk_idx = 0;
-            if (ph.GetFixTheBallEnabled() && ph.GetPlusTenScoreEnabled())
+            if (PerkHandler.fixTheBallEnabled && PerkHandler.plusTenScoreEnabled)
                 perk_idx = Random.Range(fix_idx, plus_ten_idx + 1);
-            else if (ph.GetPlusTenScoreEnabled())
+            else if (PerkHandler.plusTenScoreEnabled)
                 perk_idx = plus_ten_idx;
-            else if (ph.GetFixTheBallEnabled())
+            else if (PerkHandler.fixTheBallEnabled)
                 perk_idx = fix_idx;
-
+            Debug.Log(perk_idx);
             Instantiate(obstacles[perk_idx], transform.position + new Vector3(new_offset, 0, 0), obstacles[perk_idx].transform.rotation);
             ChangeOffset();
         }
@@ -64,8 +68,8 @@ public class SpawnManager : MonoBehaviour
             old_offset = new_offset;
             if (old_offset < 10)
             {
-                random_range_upper_limit = 85;
-                random_range_lower_limit = 45;
+                random_range_upper_limit = 80;
+                random_range_lower_limit = 55;
             }
             else
             {

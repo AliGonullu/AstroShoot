@@ -1,7 +1,5 @@
 using UnityEngine.EventSystems;
 using UnityEngine;
-
-
 public class MovementJoystick : MonoBehaviour
 {
     [SerializeField] private GameObject joystickBG, joystick;

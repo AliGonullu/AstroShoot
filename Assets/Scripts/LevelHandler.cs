@@ -8,46 +8,40 @@ public class LevelHandler : MonoBehaviour
 
     private readonly static int score_limit1 = 1, score_limit2 = 1, score_limit3 = 1;
 
-    private readonly static int[] score_limits = { score_limit1, score_limit2, score_limit3};
-    private SceneMNG sMNG;
-    private Texts texts;
-    private Ball ball;
+    public static int[] score_limits = { score_limit1, score_limit2, score_limit3};
 
     private int button_index = 0;
     
     private void Start()
     {
-        sMNG = new();
-        texts = new();
-        ball = new();
+        ChangeMastery(SceneMNG.mastery_lvl);
         
-        ChangeMastery(sMNG.GetMastery());
+        LVLTexts[0].text = Variables.ship_speed_lvl.ToString();
+        masteryRequirementsTexts[0].text = "(" + Texts.MasteryTextHandling(score_limits[0].ToString()) + ")";
 
-        LVLTexts[0].text = Player.playerSpeedLVL.ToString();
-        masteryRequirementsTexts[0].text = "(" + texts.MasteryTextHandling(score_limits[0].ToString()) + ")";
+        LVLTexts[1].text = Variables.throw_force_lvl.ToString();
+        masteryRequirementsTexts[1].text = "(" + Texts.MasteryTextHandling(score_limits[1].ToString()) + ")";
 
-        LVLTexts[1].text = ball.GetThrowForceLVL().ToString();
-        masteryRequirementsTexts[1].text = "(" + texts.MasteryTextHandling(score_limits[1].ToString()) + ")";
-
-        LVLTexts[2].text = ball.GetHealthLVL().ToString();
-        masteryRequirementsTexts[2].text = "(" + texts.MasteryTextHandling(score_limits[2].ToString()) + ")";
+        LVLTexts[2].text = Variables.ball_health_level.ToString();
+        masteryRequirementsTexts[2].text = "(" + Texts.MasteryTextHandling(score_limits[2].ToString()) + ")";
     }
 
     public void PlayerSpeedButtonDown()
     {
-        Player.playerSpeedLVL = ButtonProcess(0, Player.playerSpeedLVL);
+        Variables.ship_speed_lvl = ButtonProcess(0, Variables.ship_speed_lvl);
     }
 
     public void ThrowForceButtonDown()
     {
-        ball.SetThrowForceLVL(ButtonProcess(1, ball.GetThrowForceLVL()));
+        Variables.throw_force_lvl = ButtonProcess(1, Variables.throw_force_lvl);
     }
 
     public void ExtraHealthForBall()
     {
-        if(Ball.max_health > ball.GetHealthLVL())
+        
+        if (Variables.ball_max_health > Variables.ball_health_level)
         {
-            ball.SetHealthLVL(ButtonProcess(2, ball.GetHealthLVL()));
+            Variables.ball_health_level = ButtonProcess(2, Variables.ball_health_level);
         }
         else
         {
@@ -58,19 +52,19 @@ public class LevelHandler : MonoBehaviour
     private int ButtonProcess(int _button_idx, int _lvl)
     {
         button_index = _button_idx;
-        if (sMNG.GetMastery() >= score_limits[button_index])
+        if (SceneMNG.mastery_lvl >= score_limits[button_index])
         {
             
-            ChangeMastery(sMNG.GetMastery() - score_limits[button_index]);
+            ChangeMastery(SceneMNG.mastery_lvl - score_limits[button_index]);
             _lvl += 1;
             score_limits[_button_idx] *= 2;
-            sMNG.ResetScoreSlider();
+            SceneMNG.ResetScoreSlider();
             LVLTexts[button_index].text = _lvl.ToString();
-            masteryRequirementsTexts[button_index].text = "(" + texts.MasteryTextHandling(score_limits[button_index].ToString()) + ")";
+            masteryRequirementsTexts[button_index].text = "(" + Texts.MasteryTextHandling(score_limits[button_index].ToString()) + ")";
         }
         else
         {
-            masteryRequirementsTexts[button_index].text = "(" + texts.insufficient_mastery + ")";
+            masteryRequirementsTexts[button_index].text = "(" + Texts.insufficient_mastery + ")";
         }
         return _lvl;
     }
@@ -80,8 +74,8 @@ public class LevelHandler : MonoBehaviour
     {
         if(masteryText != null)
         {
-            sMNG.SetMastery(_new_value);
-            masteryText.text = "(" + texts.MasteryTextHandling(_new_value.ToString()) + ")";
+            SceneMNG.mastery_lvl = _new_value;
+            masteryText.text = "(" + Texts.MasteryTextHandling(_new_value.ToString()) + ")";
         }
     }
     
